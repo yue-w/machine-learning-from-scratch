@@ -16,32 +16,43 @@ class LinearRegression:
 		assert n_example == y.shape[0], "Number of X and y do not match"
 
 		self.W = np.random.normal(loc=0,scale=1,size=(n_feature, 1))
-		self.b = 0
 
 		for _ in range(self.count_iter):
-			y_hat = np.dot(X, self.W) + self.b
-			y_diff = (y_hat - y)
-			dW =  1/n_example * np.dot(X.T, y_diff)
-			db = 1/n_example * np.sum(y_diff) 
-			self.W -= self.lr * dW
-			self.b -= self.lr * db 
+			y_hat = np.dot(X, self.W)
+			grd = self.grad(y_hat, y, X)
+			self.W -= self.lr * grd
+	
+	def grad(self, y_hat, y, X):
+		"""
+		Gradient.
+		"""
+		## m: number of examples.
+		m = X.shape[0]
+		dw = np.matmul(X.T, (y_hat-y)) / m
+
+		return dw
 
 	def predict(self, X):
-		y_hat = np.dot(X, self.W) + self.b
+		y_hat = np.dot(X, self.W) 
 		return y_hat
 
 if __name__ == '__main__':
 	from sklearn.model_selection import train_test_split
-	num = 200
-	X = np.linspace(start=0, stop=5, num=num)
-	X = X.reshape(num,1)
-	k = 2
-	b = 1
-	y = k * X + b + np.random.normal(loc=0, scale=0.5, size=(X.shape[0],1))
+	m = 200
+	X = np.linspace(start=0, stop=5, num=m)
+	X = X.reshape(m, 1)
+	ones = np.ones((m, 1))
+	X = np.concatenate((X, ones), axis=1)
+	## Add a column of ones to X
+
+	k1 = 2
+	k2 = 1
+	#y = k1 * X[:,0] + k2 + np.random.normal(loc=0, scale=0.5, size=(X.shape[0],1))
+	y = k1 * X[:,0] + k2 + np.random.normal(loc=0, scale=0.5, size=X.shape[0])
+	y = y.reshape((m, 1)) 
 	X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=1234)
 
-	#y_real = k*X_train[:,0]+b
-	#ax.plot(X_train[:, 0], y_real, c='black')
+
 	lr = 0.05
 	count_iter = 1000
 	regressor = LinearRegression(lr,count_iter)
@@ -52,6 +63,9 @@ if __name__ == '__main__':
 	fig, ax = plt.subplots()
 	ax.scatter(X_train[:, 0], y_train[:,0],c='g', s=30)
 	ax.scatter(X_test[:, 0], y_test[:,0],c='r', s=30)
-	ax.plot(X_test[:, 0], y_hat, c='black')
+	## plot the fitted line
+	# ax.plot(X_test[:, 0], y_hat, linestyle='--',c='black')
+	# plot the fitted line using a point and the slop
+	ax.axline(xy1=(X_test[0][0], y_test[0][0]), slope=regressor.W[0], linestyle='--',color='black')
 	plt.show()
 

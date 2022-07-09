@@ -23,6 +23,9 @@ class LogisticRegression:
 			self.w -= self.lr * grd
 
 	def grad(self, y_hat, y, X):
+		"""
+		Compute gradient of w.
+		"""
 		## m: number of examples.
 		m = X.shape[0]
 		dw = np.matmul(X.T, (y_hat-y)) / m
